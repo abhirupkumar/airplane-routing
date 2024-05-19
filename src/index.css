@@ -15,6 +15,18 @@
   background-color: transparent;
 }
 
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+canvas {
+  display: block;
+}
+
 @layer base {
   :root {
     --background: 251 81% 4%;
