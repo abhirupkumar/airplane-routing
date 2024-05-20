@@ -125,7 +125,7 @@ const Globe = () => {
 
 const ResponsiveCanvas = ({ children }) => {
     return (
-        <div style={{ height: '100vh' }}>
+        <div className="lg:h-[100vh] h-[50vh]">
             <Canvas style={{ height: '100%' }}>
                 {children}
             </Canvas>
