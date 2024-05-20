@@ -4,8 +4,23 @@ import MaxWidthWrapper from './components/MaxWidthWrapper';
 import Navbar from './components/Navbar';
 import Globe from './components/Globe';
 import StarsCanvas from './components/StarBackground';
+import InputForm from './components/InputForm';
+import MapWithRoute from './components/MapWithRoute';
+import { useRef, useState } from 'react';
 
 export default function App() {
+
+  const [route, setRoute] = useState(null);
+  const ref = useRef(null);
+
+  const handleClick = () => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleRouteSubmit = (startLat, startLng, endLat, endLng) => {
+    setRoute({ startLat, startLng, endLat, endLng });
+  };
+
   return (
     <>
       <StarsCanvas />
@@ -26,19 +41,20 @@ export default function App() {
             <p className='mt-5 max-w-prose text-zinc-300 sm:text-lg'>
               AirRoute allows you to find out the best possible route amidst all the traffic. Simply provide your starting point and destination to know your route.
             </p>
-
-            <a
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-5"
-              to='dashboard'>
+            <button onClick={handleClick} className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-5">
               Get started
-            </a>
+            </button>
           </div>
           <div className='lg:w-1/2 w-full'>
             <Globe />
           </div>
         </div>
 
-        {/* Feature section */}
+        <div ref={ref} className="flex flex-col items-center p-4 w-full">
+          <h1 className="text-3xl font-semibold mb-4 italic">Enter your journey details</h1>
+          <InputForm onSubmit={handleRouteSubmit} />
+          {route && <MapWithRoute route={route} />}
+        </div>
 
       </MaxWidthWrapper>
     </>
