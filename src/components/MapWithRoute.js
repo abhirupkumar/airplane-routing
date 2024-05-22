@@ -83,7 +83,7 @@ const MapWithRoute = () => {
                     setPlanePosition([routes[nextIndex].Latitude, routes[nextIndex].Longitude]);
                     return nextIndex;
                 });
-            }, 500); // Change plane position every 4 seconds
+            }, 500); // Change plane position every 0.5 seconds
 
             return () => clearInterval(interval);
         }
