@@ -53,7 +53,8 @@ export default function App() {
         <div ref={ref} className="flex flex-col items-center p-4 w-full">
           <h1 className="text-3xl font-semibold mb-4 italic">Enter your journey details</h1>
           <InputForm onSubmit={handleRouteSubmit} />
-          {route && <MapWithRoute route={route} />}
+          {/* {route && <MapWithRoute route={route} />} */}
+          {<MapWithRoute />}
         </div>
 
       </MaxWidthWrapper>
