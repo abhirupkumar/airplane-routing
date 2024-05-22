@@ -16,6 +16,7 @@
     "react-globe.gl": "^2.27.2",
     "react-leaflet": "^4.2.1",
     "react-scripts": "5.0.1",
+    "react-search-autocomplete": "^8.5.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.164.1",
