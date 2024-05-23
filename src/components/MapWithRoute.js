@@ -70,19 +70,22 @@ const MapWithRoute = ({ routesData }) => {
                 const distance = calculateDistance(currentRoute.Latitude, currentRoute.Longitude, nextRoute.Latitude, nextRoute.Longitude);
                 const timeInHours = calculateTime(distance, PLANE_SPEED_KMH);
                 const timeInMinutes = timeInHours * 60;
-
                 if (timeInMinutes <= 15) {
                     try {
-                        const fetchedData = await fetch(`https://9a50-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}`, {
-                            method: 'GET',
+                        const fetchedData = await fetch(`https://5cc5-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}`, {
+                            method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                "Access-Control-Allow-Origin": "*"
                             },
+                            body: JSON.stringify({ start: nextRoute.id, end: routes[routes.length - 1].id })
                         });
                         const response = await fetchedData.json();
                         const newRoutes = airportsData.filter((airport) => response.route.includes(airport.id));
-                        setRoutes(newRoutes);
+                        const sortedRoutes = response.route.map((id) => newRoutes.find((route) => route.id === id));
+                        setRoutes(sortedRoutes);
                         setCurrentRouteIndex(0); // Reset index to start from the new route
+                        setPlanePosition([nextRoute.Latitude, nextRoute.Longitude]);
                     } catch (error) {
                         console.error('Failed to fetch new routes:', error);
                     }
@@ -90,13 +93,12 @@ const MapWithRoute = ({ routesData }) => {
                     setTimeout(() => {
                         setCurrentRouteIndex(currentRouteIndex + 1);
                         setPlanePosition([nextRoute.Latitude, nextRoute.Longitude]);
-                    }, timeInMinutes * 60000); // Convert minutes to milliseconds
+                    }, timeInMinutes * 60000);
                 }
 
                 intervalId = setInterval(() => {
                     const currentTime = new Date().getTime();
                     const timeElapsed = (currentTime - intervalId) / 60000; // Time elapsed in minutes
-
                     if (timeElapsed >= timeInMinutes - 15) {
                         clearInterval(intervalId);
                         updatePlanePosition();

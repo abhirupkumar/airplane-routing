@@ -33,9 +33,7 @@ export default function App() {
       },
       body: JSON.stringify({ start: start.id, end: end.id })
     });
-    console.log(response)
     const data = await response.json();
-    console.log(data)
     const routes = airportsData.filter((airport) => data.route.includes(airport.id));
     if (data && data.error) {
       setError(data.error);
@@ -45,7 +43,6 @@ export default function App() {
     }
     const sortedRoutes = data.route.map((id) => routes.find((route) => route.id === id));
     setRoutesData(sortedRoutes);
-    console.log(sortedRoutes);
     setError("");
     setLoading(false);
   };
