@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete';
 import airports from '../data/airports.json';
 
-const InputForm = ({ onSubmit }) => {
+const InputForm = ({ loading, onSubmit }) => {
     const airportsData = airports["airports"];
     const [start, setStart] = useState(null);
     const [dest, setDest] = useState(null);
@@ -28,7 +28,7 @@ const InputForm = ({ onSubmit }) => {
         if (!start || !dest) {
             return;
         }
-        onSubmit(start.Latitude, start.Longitude, dest.Latitude, dest.Longitude);
+        onSubmit(start, dest);
     }
 
     const handleClear1 = () => {
@@ -81,8 +81,8 @@ const InputForm = ({ onSubmit }) => {
                 </div>
             </div>
             <div className="flex items-center justify-between">
-                <button type="submit" className="inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8">
-                    Show Route
+                <button disabled={loading} type="submit" className="inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8">
+                    {loading ? "Loading..." : "Show Route"}
                 </button>
             </div>
         </form>

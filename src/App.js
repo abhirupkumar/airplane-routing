@@ -6,20 +6,53 @@ import Globe from './components/Globe';
 import StarsCanvas from './components/StarBackground';
 import InputForm from './components/InputForm';
 import MapWithRoute from './components/MapWithRoute';
-import { useRef, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import airports from './data/airports.json';
 
 export default function App() {
 
-  const [route, setRoute] = useState(null);
+  const [routesData, setRoutesData] = useState(null);
+  const [routes, setRoutes] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const ref = useRef(null);
+
+  const airportsData = airports["airports"];
 
   const handleClick = () => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleRouteSubmit = (startLat, startLng, endLat, endLng) => {
-    setRoute({ startLat, startLng, endLat, endLng });
+  const handleRouteSubmit = async (start, end) => {
+    setLoading(true);
+    const response = await fetch(`https://5cc5-27-131-211-122.ngrok-free.app/shortest_path?start=${start.id}&end=${end.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify({ start: start.id, end: end.id })
+    });
+    console.log(response)
+    const data = await response.json();
+    console.log(data)
+    const routes = airportsData.filter((airport) => data.route.includes(airport.id));
+    if (data && data.error) {
+      setError(data.error);
+      setRoutesData(null);
+      setLoading(false);
+      return;
+    }
+    const sortedRoutes = data.route.map((id) => routes.find((route) => route.id === id));
+    setRoutesData(sortedRoutes);
+    console.log(sortedRoutes);
+    setError("");
+    setLoading(false);
   };
+
+  useEffect(() => {
+    setRoutes(routesData);
+  }, [routesData])
 
   return (
     <>
@@ -52,9 +85,9 @@ export default function App() {
 
         <div ref={ref} className="flex flex-col items-center p-4 w-full">
           <h1 className="text-3xl font-semibold mb-4 italic">Enter your journey details</h1>
-          <InputForm onSubmit={handleRouteSubmit} />
-          {/* {route && <MapWithRoute route={route} />} */}
-          {<MapWithRoute />}
+          <InputForm loading={loading} onSubmit={handleRouteSubmit} />
+          {routes && routes != null && <MapWithRoute routesData={routes} />}
+          {error && error != "" && <p className="text-xl text-red-500">{error}</p>}
         </div>
 
       </MaxWidthWrapper>

@@ -8,56 +8,13 @@ import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import StepConnector from './StepConnector';
+import { haversineDistance, travelTime } from '../lib/utils';
+import airports from '../data/airports.json';
 
 L.Marker.prototype.options.icon = L.icon({
     iconUrl,
     shadowUrl: iconShadowUrl,
 });
-
-const routes = [
-    {
-        "name": "Newport News Williamsburg International Airport",
-        "id": "PHF",
-        "Latitude": "37.13190079",
-        "Longitude": "-76.49299622"
-    },
-    {
-        "name": "Philadelphia International Airport",
-        "id": "PHL",
-        "Latitude": "39.87189865",
-        "Longitude": "-75.2410965"
-    },
-    {
-        "name": "Newark Liberty International Airport",
-        "id": "EWR",
-        "Latitude": "40.69250107",
-        "Longitude": "-74.16870117"
-    },
-    {
-        "name": "Keflavik International Airport",
-        "id": "KEF",
-        "Latitude": "63.98500061",
-        "Longitude": "-22.60560036"
-    },
-    {
-        "name": "Helsinki Vantaa Airport",
-        "id": "HEL",
-        "Latitude": "60.31719971",
-        "Longitude": "24.9633007"
-    },
-    {
-        "name": "Domodedovo International Airport",
-        "id": "DME",
-        "Latitude": "55.40879822",
-        "Longitude": "37.90629959"
-    },
-    {
-        "name": "Aktau Airport",
-        "id": "SCO",
-        "Latitude": "43.8601",
-        "Longitude": "51.091999"
-    },
-]
 
 const planeIcon = new L.Icon({
     iconUrl: './icons/airplane.png',
@@ -65,10 +22,37 @@ const planeIcon = new L.Icon({
     iconAnchor: [20, 20],
 });
 
-const MapWithRoute = () => {
+const PLANE_SPEED_KMH = 903; // Plane speed in km/h
+const REFRESH_INTERVAL_MS = 60000; // Refresh interval of 1 minute
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+};
+
+const calculateTime = (distance, speed) => {
+    return distance / speed; // Time in hours
+};
+
+const MapWithRoute = ({ routesData }) => {
+    const [routes, setRoutes] = useState(routesData);
     const mapRef = useRef();
-    const [planePosition, setPlanePosition] = useState(null);
+    const [planePosition, setPlanePosition] = useState([routes[0].Latitude, routes[0].Longitude]);
     const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
+    const [isDestReached, setIsDestReached] = useState(false);
+    const airportsData = airports["airports"];
+
+    useEffect(() => {
+        setRoutes(routesData);
+    }, [routesData]);
+
     useEffect(() => {
         if (mapRef.current && routes.length > 0) {
             const firstRoute = routes[0];
@@ -77,18 +61,59 @@ const MapWithRoute = () => {
     }, [routes]);
 
     useEffect(() => {
-        if (routes.length > 1) {
-            const interval = setInterval(() => {
-                setCurrentRouteIndex((prevIndex) => {
-                    const nextIndex = (prevIndex + 1) % routes.length;
-                    setPlanePosition([routes[nextIndex].Latitude, routes[nextIndex].Longitude]);
-                    return nextIndex;
-                });
-            }, 500); // Change plane position every 0.5 seconds
+        let intervalId;
 
-            return () => clearInterval(interval);
+        const updatePlanePosition = async () => {
+            if (routes.length > 1 && !isDestReached) {
+                const currentRoute = routes[currentRouteIndex];
+                const nextRoute = routes[currentRouteIndex + 1];
+                const distance = calculateDistance(currentRoute.Latitude, currentRoute.Longitude, nextRoute.Latitude, nextRoute.Longitude);
+                const timeInHours = calculateTime(distance, PLANE_SPEED_KMH);
+                const timeInMinutes = timeInHours * 60;
+
+                if (timeInMinutes <= 15) {
+                    try {
+                        const fetchedData = await fetch(`https://9a50-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        const response = await fetchedData.json();
+                        const newRoutes = airportsData.filter((airport) => response.route.includes(airport.id));
+                        setRoutes(newRoutes);
+                        setCurrentRouteIndex(0); // Reset index to start from the new route
+                    } catch (error) {
+                        console.error('Failed to fetch new routes:', error);
+                    }
+                } else {
+                    setTimeout(() => {
+                        setCurrentRouteIndex(currentRouteIndex + 1);
+                        setPlanePosition([nextRoute.Latitude, nextRoute.Longitude]);
+                    }, timeInMinutes * 60000); // Convert minutes to milliseconds
+                }
+
+                intervalId = setInterval(() => {
+                    const currentTime = new Date().getTime();
+                    const timeElapsed = (currentTime - intervalId) / 60000; // Time elapsed in minutes
+
+                    if (timeElapsed >= timeInMinutes - 15) {
+                        clearInterval(intervalId);
+                        updatePlanePosition();
+                    }
+                }, REFRESH_INTERVAL_MS);
+            }
+        };
+
+        updatePlanePosition();
+
+        if (currentRouteIndex === routes.length - 1) {
+            setIsDestReached(true);
+            clearInterval(intervalId);
         }
-    }, [routes]);
+
+        return () => clearInterval(intervalId);
+    }, [routes, currentRouteIndex, isDestReached]);
 
     const routeLatLngs = routes.map(route => [route.Latitude, route.Longitude]);
 
