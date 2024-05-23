@@ -7,6 +7,7 @@ import L from 'leaflet';
 // Fix for default marker icon issues with webpack
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import StepConnector from './StepConnector';
 
 L.Marker.prototype.options.icon = L.icon({
     iconUrl,
@@ -127,6 +128,7 @@ const MapWithRoute = () => {
                     <Marker position={planePosition} icon={planeIcon} />
                 )}
             </MapContainer>
+            {routes && <StepConnector steps={routes} />}
         </div>
     );
 };
