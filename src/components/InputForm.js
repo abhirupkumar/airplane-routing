@@ -4,7 +4,6 @@ import airports from '../data/airports.json';
 
 const InputForm = ({ onSubmit }) => {
     const airportsData = airports["airports"];
-    console.log(airportsData)
     const [start, setStart] = useState(null);
     const [dest, setDest] = useState(null);
 
@@ -19,7 +18,7 @@ const InputForm = ({ onSubmit }) => {
     const formatResult = (item) => {
         return (
             <>
-                <span className="block text-left z-10">{item.name}</span>
+                <span className="block text-left">{item.name}</span>
             </>
         )
     }
@@ -48,12 +47,17 @@ const InputForm = ({ onSubmit }) => {
                     </label>
                     <ReactSearchAutocomplete
                         items={airportsData}
+                        placeholder="Search for an airport..."
                         fuseOptions={{ keys: ["name", "id"] }}
                         onSelect={handleOnSelectStartAirport}
                         onClear={handleClear1}
                         autoFocus
                         formatResult={formatResult}
                         resultStringKeyName="name"
+                        className="autocomplete-start"
+                        styling={{
+                            zIndex: 20,
+                        }}
                     />
                 </div>
                 <div className="mb-4">
@@ -62,12 +66,17 @@ const InputForm = ({ onSubmit }) => {
                     </label>
                     <ReactSearchAutocomplete
                         items={airportsData}
+                        placeholder="Search for an airport..."
                         fuseOptions={{ keys: ["name"] }}
                         onSelect={handleOnSelectEndAirport}
                         onClear={handleClear2}
                         autoFocus
                         formatResult={formatResult}
                         resultStringKeyName="name"
+                        className="autocomplete-end"
+                        styling={{
+                            zIndex: 10,
+                        }}
                     />
                 </div>
             </div>

@@ -67,7 +67,4 @@ canvas {
   body {
     @apply bg-background text-foreground;
   }
-  .wrapper div:nth-child(2) {
-    @apply !z-20;
-  }
 }

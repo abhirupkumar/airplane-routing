@@ -92,9 +92,8 @@ const MapWithRoute = () => {
 
     const routeLatLngs = routes.map(route => [route.Latitude, route.Longitude]);
 
-
     return (
-        <div className="relative w-full h-96">
+        <div className="relative w-full h-96 z-30">
             <MapContainer
                 center={routeLatLngs.length ? routeLatLngs[0] : [0, 0]}
                 zoom={2}
