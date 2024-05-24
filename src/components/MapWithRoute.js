@@ -51,6 +51,7 @@ const MapWithRoute = ({ routesData }) => {
 
     useEffect(() => {
         setRoutes(routesData);
+        setPlanePosition([routesData[0].Latitude, routesData[0].Longitude]);
     }, [routesData]);
 
     useEffect(() => {
