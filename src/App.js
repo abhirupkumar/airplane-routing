@@ -24,7 +24,7 @@ export default function App() {
   };
 
   const handleRouteSubmit = async (start, end) => {
-    // setLoading(true);
+    setLoading(true);
     const response = await fetch(`https://airnavigation.onrender.com/shortest_path?start=${start.id}&end=${end.id}`, {
       method: 'POST',
       headers: {
