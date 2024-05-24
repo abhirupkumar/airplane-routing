@@ -24,7 +24,7 @@ export default function App() {
   };
 
   const handleRouteSubmit = async (start, end) => {
-    setLoading(true);
+    // setLoading(true);
     const response = await fetch(`https://airnavigation.onrender.com/shortest_path?start=${start.id}&end=${end.id}`, {
       method: 'POST',
       headers: {
@@ -34,17 +34,19 @@ export default function App() {
       body: JSON.stringify({ start: start.id, end: end.id })
     });
     const data = await response.json();
-    const routes = airportsData.filter((airport) => data.route.includes(airport.id));
     if (data && data.error) {
       setError(data.error);
       setRoutesData(null);
       setLoading(false);
       return;
     }
-    const sortedRoutes = data.route.map((id) => routes.find((route) => route.id === id));
-    setRoutesData(sortedRoutes);
-    setError("");
-    setLoading(false);
+    else {
+      const routes = airportsData.filter((airport) => data.route.includes(airport.id));
+      const sortedRoutes = data.route.map((id) => routes.find((route) => route.id === id));
+      setRoutesData(sortedRoutes);
+      setError("");
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
