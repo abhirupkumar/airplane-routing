@@ -72,7 +72,7 @@ const MapWithRoute = ({ routesData }) => {
                 const timeInMinutes = timeInHours * 60;
                 if (timeInMinutes <= 15) {
                     try {
-                        const fetchedData = await fetch(`https://5cc5-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}`, {
+                        const fetchedData = await fetch(`http://74.225.182.107:5635/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

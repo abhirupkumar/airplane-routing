@@ -25,7 +25,7 @@ export default function App() {
 
   const handleRouteSubmit = async (start, end) => {
     setLoading(true);
-    const response = await fetch(`https://5cc5-27-131-211-122.ngrok-free.app/shortest_path?start=${start.id}&end=${end.id}`, {
+    const response = await fetch(`http://74.225.182.107:5635/shortest_path?start=${start.id}&end=${end.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
