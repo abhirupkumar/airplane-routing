@@ -17,10 +17,10 @@ L.Marker.prototype.options.icon = L.icon({
 });
 
 // L.control.weather({
-//     apikey: "YOUR_API_KEY",
+//     apikey: "b21a2633ddaac750a77524f91fe104e7",
 //     lang: "en",
 //     units: "metric"
-//   });
+// });
 
 const planeIcon = new L.Icon({
     iconUrl: './icons/airplane.png',
@@ -86,7 +86,7 @@ const MapWithRoute = ({ routesData, routesData1 }) => {
                 const elapsedMinutes = (Date.now() - departureTime) / 60000;
                 if (timeInMinutes - elapsedMinutes <= 15) {
                     try {
-                        const fetchedData = await fetch(`https://f91d-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}&prev=${routes[0].id}`, {
+                        const fetchedData = await fetch(`https://airnavigation.onrender.com/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}&prev=${routes[0].id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
