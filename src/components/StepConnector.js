@@ -1,9 +1,9 @@
 import React from 'react';
 
-const StepConnector = ({ steps }) => {
+const StepConnector = ({ steps, name }) => {
     return (
-        <div className='w-full pt-12 pb-24'>
-            <p className="text-white text-xl italic font-semibold">Route</p>
+        <div className={`w-full pt-12 ${name == "Optimal Route" ? '' : "pb-24"}`}>
+            <p className="text-white text-xl italic font-semibold">{name}</p>
             <div className="flex flex-wrap justify-center mx-auto">
                 {steps.map((step, index) => {
                     return (

@@ -12,7 +12,9 @@ import airports from './data/airports.json';
 export default function App() {
 
   const [routesData, setRoutesData] = useState(null);
+  const [routesData1, setRoutesData1] = useState(null);
   const [routes, setRoutes] = useState(null);
+  const [routes1, setRoutes1] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const ref = useRef(null);
@@ -25,7 +27,7 @@ export default function App() {
 
   const handleRouteSubmit = async (start, end) => {
     setLoading(true);
-    const response = await fetch(`https://airnavigation.onrender.com/shortest_path?start=${start.id}&end=${end.id}&prev`, {
+    const response = await fetch(`https://f91d-27-131-211-122.ngrok-free.app/shortest_path?start=${start.id}&end=${end.id}&prev`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,15 +45,23 @@ export default function App() {
     else {
       const routes = airportsData.filter((airport) => data.route.includes(airport.id));
       const sortedRoutes = data.route.map((id) => routes.find((route) => route.id === id));
+      const routes1 = airportsData.filter((airport) => data.route1.includes(airport.id));
+      const sortedRoutes1 = data.route1.map((id) => routes1.find((route) => route.id === id));
       setRoutesData(sortedRoutes);
+      setRoutesData1(sortedRoutes1);
       setError("");
       setLoading(false);
+      console.log(data.route, data.route1)
     }
   };
 
   useEffect(() => {
     setRoutes(routesData);
   }, [routesData])
+
+  useEffect(() => {
+    setRoutes1(routesData1);
+  }, [routesData1])
 
   return (
     <>
@@ -85,7 +95,7 @@ export default function App() {
         <div ref={ref} className="flex flex-col items-center p-4 w-full">
           <h1 className="text-3xl font-semibold mb-4 italic">Enter your journey details</h1>
           <InputForm loading={loading} onSubmit={handleRouteSubmit} />
-          {routes && routes != null && <MapWithRoute routesData={routes} />}
+          {routes && routes != null && <MapWithRoute routesData={routes} routesData1={routes1} />}
           {error && error != "" && <p className="text-xl text-red-500">{error}</p>}
         </div>
 

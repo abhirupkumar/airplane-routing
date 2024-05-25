@@ -16,6 +16,12 @@ L.Marker.prototype.options.icon = L.icon({
     shadowUrl: iconShadowUrl,
 });
 
+// L.control.weather({
+//     apikey: "YOUR_API_KEY",
+//     lang: "en",
+//     units: "metric"
+//   });
+
 const planeIcon = new L.Icon({
     iconUrl: './icons/airplane.png',
     iconSize: [40, 40],
@@ -41,8 +47,9 @@ const calculateTime = (distance, speed) => {
     return distance / speed; // Time in hours
 };
 
-const MapWithRoute = ({ routesData }) => {
+const MapWithRoute = ({ routesData, routesData1 }) => {
     const [routes, setRoutes] = useState(routesData);
+    const [routes1, setRoutes1] = useState(routesData1);
     const mapRef = useRef();
     const [planePosition, setPlanePosition] = useState([routes[0].Latitude, routes[0].Longitude]);
     const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
@@ -54,6 +61,10 @@ const MapWithRoute = ({ routesData }) => {
         setRoutes(routesData);
         setPlanePosition([routesData[0].Latitude, routesData[0].Longitude]);
     }, [routesData]);
+
+    useEffect(() => {
+        setRoutes1(routesData1);
+    }, [routesData1]);
 
     useEffect(() => {
         if (mapRef.current && routes.length > 0) {
@@ -75,7 +86,7 @@ const MapWithRoute = ({ routesData }) => {
                 const elapsedMinutes = (Date.now() - departureTime) / 60000;
                 if (timeInMinutes - elapsedMinutes <= 15) {
                     try {
-                        const fetchedData = await fetch(`https://airnavigation.onrender.com/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}&prev=${routes[0].id}`, {
+                        const fetchedData = await fetch(`https://f91d-27-131-211-122.ngrok-free.app/shortest_path?start=${nextRoute.id}&end=${routes[routes.length - 1].id}&prev=${routes[0].id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -84,9 +95,12 @@ const MapWithRoute = ({ routesData }) => {
                             body: JSON.stringify({ start: nextRoute.id, end: routes[routes.length - 1].id })
                         });
                         const response = await fetchedData.json();
+                        const newRoutes1 = airportsData.filter((airport) => response.route1.includes(airport.id));
+                        const sortedRoutes1 = response.route1.map((id) => newRoutes.find((route) => route.id === id));
                         const newRoutes = airportsData.filter((airport) => response.route.includes(airport.id));
                         const sortedRoutes = response.route.map((id) => newRoutes.find((route) => route.id === id));
                         setRoutes(sortedRoutes);
+                        setRoutes1(sortedRoutes1);
                         setCurrentRouteIndex(0); // Reset index to start from the new route
                         setPlanePosition([nextRoute.Latitude, nextRoute.Longitude]);
                         setDepartureTime(Date.now());
@@ -158,7 +172,8 @@ const MapWithRoute = ({ routesData }) => {
                     <Marker position={planePosition} icon={planeIcon} />
                 )}
             </MapContainer>
-            {routes && <StepConnector steps={routes} />}
+            {routes && <StepConnector steps={routes} name="Optimal Route" />}
+            {routes1 && <StepConnector steps={routes1} name="Route" />}
         </div>
     );
 };
